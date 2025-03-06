@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Selection Sort Visualizer</title>
+    <style>
+        body {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            height: 100vh;
+            background-color: #f4f4f4;
+        }
+        .header {
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            padding: 40px 0;
+            margin-bottom: 40px;
+        }
+        .bar-container {
+            display: flex;
+            align-items: flex-end;
+            height: 75vh;
+            width: 95vw;
+            justify-content: center;
+        }
+        .bar {
+            width: 100px;
+            margin: 10px;
+            background-color: steelblue;
+            position: relative;
+            text-align: center;
+            color: white;
+            font-weight: bold;
+            display: flex;
+            align-items: flex-end;
+            justify-content: center;
+            font-size: 22px;
+            border-radius: 5px;
+        }
+        button {
+            padding: 25px 50px;
+            font-size: 36px;
+            font-weight: bold;
+            background: linear-gradient(135deg, #ff7eb3, #ff758c);
+            color: white;
+            border: none;
+            border-radius: 15px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2);
+        }
+        button:hover {
+            background: linear-gradient(135deg, #ff5f6d, #ff3c54);
+            transform: scale(1.1);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <button onclick="startSelectionSort()">🚀 Start Selection Sort 🚀</button>
+    </div>
+    <div class="bar-container" id="barContainer"></div>
+    
+    <script>
+        let array = [];
+        const numBars = 10;
+        
+        function generateArray() {
+            array = [];
+            document.getElementById("barContainer").innerHTML = "";
+            for (let i = 0; i < numBars; i++) {
+                let value = Math.floor(Math.random() * 400) + 50;
+                array.push(value);
+                let bar = document.createElement("div");
+                bar.classList.add("bar");
+                bar.style.height = value + "px";
+                bar.innerText = value;
+                document.getElementById("barContainer").appendChild(bar);
+            }
+        }
+        
+        async function selectionSort(arr) {
+            let bars = document.getElementsByClassName("bar");
+            for (let i = 0; i < arr.length - 1; i++) {
+                let minIndex = i;
+                bars[minIndex].style.backgroundColor = "red";
+                for (let j = i + 1; j < arr.length; j++) {
+                    bars[j].style.backgroundColor = "yellow";
+                    await new Promise(resolve => setTimeout(resolve, 200));
+                    if (arr[j] < arr[minIndex]) {
+                        bars[minIndex].style.backgroundColor = "steelblue";
+                        minIndex = j;
+                        bars[minIndex].style.backgroundColor = "red";
+                    } else {
+                        bars[j].style.backgroundColor = "steelblue";
+                    }
+                }
+                if (minIndex !== i) {
+                    let temp = arr[i];
+                    arr[i] = arr[minIndex];
+                    arr[minIndex] = temp;
+                    bars[i].style.height = arr[i] + "px";
+                    bars[i].innerText = arr[i];
+                    bars[minIndex].style.height = arr[minIndex] + "px";
+                    bars[minIndex].innerText = arr[minIndex];
+                }
+                bars[minIndex].style.backgroundColor = "steelblue";
+                bars[i].style.backgroundColor = "green";
+            }
+            bars[arr.length - 1].style.backgroundColor = "green";
+        }
+        
+        async function startSelectionSort() {
+            await selectionSort(array);
+        }
+        
+        generateArray();
+    </script>
+</body>
+</html>

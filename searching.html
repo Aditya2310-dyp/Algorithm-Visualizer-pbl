@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Navigation Bar with Sorting Algorithms</title>
+    <style>
+        body {
+            font-family: Poppins, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+        }
+        /* Navigation Bar */
+        nav {
+            background-color: #1e88e5;
+            overflow: hidden;
+            font-size: 25px;
+            height: 80px;
+            line-height: 80px;
+            border-bottom: 2px solid #1e88e5;
+            display: flex;
+            align-items: center;
+            position: relative;
+        }
+        nav a {
+            color: white;
+            padding: 23px 30px;
+            text-decoration: none;
+            display: inline-block;
+            height: 100%;
+            line-height: 80px;
+            transition: background-color 0.3s ease;
+            position: relative;
+        }
+        nav a:hover {
+            background-color: #1565c0;
+            color: white;
+        }
+        nav a.active {
+            background-color: #00008B;
+        }
+        nav a + a {
+            border-left: 3px solid #111314;
+        }
+        
+        /* Dropdown */
+        .dropdown {
+            position: relative;
+            display: inline-block;
+        }
+        .dropdown-content {
+            display: none;
+            position: absolute;
+            background-color: white;
+            min-width: 160px;
+            box-shadow: 0px 8px 16px rgba(0,0,0,0.2);
+            padding: 10px;
+            z-index: 1;
+            top: 80px;
+            left: 0;
+        }
+        .dropdown:hover .dropdown-content {
+            display: block;
+        }
+        .dropdown-content button {
+            width: 100%;
+            padding: 10px;
+            background-color: #1e88e5;
+            color: white;
+            border: none;
+            cursor: pointer;
+            font-size: 18px;
+        }
+        .dropdown-content button:hover {
+            background-color: #1565c0;
+        }
+        .dropdown a {
+            display: flex;
+            align-items: center;
+        }
+        .dropdown a::after {
+            content: '\25BC'; /* Downward arrow */
+            font-size: 18px;
+            margin-left: 8px;
+        }
+        /* Adding black line before Controls option */
+        .dropdown {
+            border-left: 3px solid #111314;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Navigation Bar -->
+    <nav>
+        <a href="/index.html" class="active">Home</a>
+        <a href="#binary-search">Binary Search</a>
+        <a href="#fibonacci-search">Fibonacci Search</a>
+        
+        <div class="dropdown">
+            <a href="#controls">Controls</a>
+            <div class="dropdown-content">
+                <button onclick="increaseArraySize()">Increase Array Size</button>
+                <button onclick="decreaseArraySize()">Decrease Array Size</button>
+            </div>
+        </div>
+    </nav>
+
+    <script>
+        function increaseArraySize() {
+            alert("Array size increased!");
+        }
+        function decreaseArraySize() {
+            alert("Array size decreased!");
+        }
+    </script>
+
+</body>
+</html>

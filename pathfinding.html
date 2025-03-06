@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pathfinding Visualizer</title>
+    <style>
+        body {
+            text-align: center;
+            background-color: #e3f2fd;
+            font-family: 'Poppins', sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+        }
+        h1 {
+            color: #570da1;
+            font-size: 3rem;
+            margin-bottom: 10px;
+            font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
+        }
+        p {
+            font-size: 1.2rem;
+            color: #1565c0;
+            margin-bottom: 10px;
+        }
+        .grid-container {
+            display: grid;
+            grid-template-columns: repeat(50, 1fr);
+            grid-template-rows: repeat(25, 1fr);
+            width: 90vw;
+            height: 70vh;
+            gap: 1px;
+            background-color: #0d47a1;
+            padding: 5px;
+            border-radius: 10px;
+            overflow: hidden;
+            border: 1px solid #0d47a1;
+        }
+        .cell {
+            background-color: #bbdefb;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            border: 1px solid #0d47a1;
+        }
+        .cell.start { background-color: blue !important; }
+        .cell.end { background-color: rgb(255, 0, 0) !important; }
+        .cell.wall { background-color: gray; }
+        .cell.wave { background-color: #66bb6a; animation: waveEffect 0.5s ease-out; }
+        .cell.path { background-color: #712e7d; animation: pathEffect 0.7s ease-out; }
+        
+        @keyframes waveEffect {
+            from { background-color: #e3f2fd; }
+            to { background-color: #66bb6a; }
+        }
+        
+        @keyframes pathEffect {
+            from { background-color: #a5d6a7; }
+            to { background-color: #2e7d32; }
+        }
+        .button-container {
+            margin-top: 15px;
+        }
+        .start-button {
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 0;
+        }
+        .start-button img {
+            width: 150px;
+            height: auto;
+        }
+    </style>
+</head>
+<body>
+    <h1>Pathfinding Visualizer</h1>
+    <p><i>Click and drag to place nodes. Press 'Start' to find the shortest path.</i></p>
+    <div class="grid-container" id="grid"></div>
+    <div class="button-container">
+        <button class="start-button" onclick="findPath()">
+            <img src="start.gif" alt="Start">
+        </button>
+    </div>
+    <script>
+        const rows = 25;
+        const cols = 50;
+        const grid = document.getElementById("grid");
+        let start = { row: 12, col: 2 };
+        let end = { row: 12, col: 47 };
+        let walls = new Set();
+        let isMouseDown = false;
+
+        function createGrid() {
+            grid.innerHTML = "";
+            for (let r = 0; r < rows; r++) {
+                for (let c = 0; c < cols; c++) {
+                    const cell = document.createElement("div");
+                    cell.classList.add("cell");
+                    cell.dataset.row = r;
+                    cell.dataset.col = c;
+                    if (r === start.row && c === start.col) cell.classList.add("start");
+                    if (r === end.row && c === end.col) cell.classList.add("end");
+                    cell.addEventListener("mousedown", () => {
+                        isMouseDown = true;
+                        toggleWall(r, c, cell);
+                    });
+                    cell.addEventListener("mouseenter", () => {
+                        if (isMouseDown) toggleWall(r, c, cell);
+                    });
+                    grid.appendChild(cell);
+                }
+            }
+            document.addEventListener("mouseup", () => isMouseDown = false);
+        }
+
+        function toggleWall(row, col, cell) {
+            const key = `${row}-${col}`;
+            if (walls.has(key)) {
+                walls.delete(key);
+                cell.classList.remove("wall");
+            } else if (!(row === start.row && col === start.col) && !(row === end.row && col === end.col)) {
+                walls.add(key);
+                cell.classList.add("wall");
+            }
+        }
+
+        function animatePath(path) {
+            path.forEach((pos, index) => {
+                setTimeout(() => {
+                    let cell = document.querySelector(`[data-row='${pos.row}'][data-col='${pos.col}']`);
+                    if (cell && !cell.classList.contains("start") && !cell.classList.contains("end")) {
+                        cell.classList.add("path");
+                    }
+                }, index * 50);
+            });
+        }
+
+        function findPath() {
+            let queue = [{ row: start.row, col: start.col, path: [] }];
+            let visited = new Set();
+            visited.add(`${start.row}-${start.col}`);
+            
+            function animateWave(queue) {
+                if (queue.length === 0) return;
+                let nextQueue = [];
+                queue.forEach(({ row, col, path }) => {
+                    let cell = document.querySelector(`[data-row='${row}'][data-col='${col}']`);
+                    if (cell && !cell.classList.contains("start") && !cell.classList.contains("end")) {
+                        cell.classList.add("wave");
+                    }
+                    if (row === end.row && col === end.col) {
+                        animatePath(path);
+                        return;
+                    }
+                    [[0, 1], [1, 0], [0, -1], [-1, 0]].forEach(([dr, dc]) => {
+                        let newRow = row + dr, newCol = col + dc;
+                        if (newRow >= 0 && newRow < rows && newCol >= 0 && newCol < cols && !walls.has(`${newRow}-${newCol}`) && !visited.has(`${newRow}-${newCol}`)) {
+                            visited.add(`${newRow}-${newCol}`);
+                            nextQueue.push({ row: newRow, col: newCol, path: [...path, { row: newRow, col: newCol }] });
+                        }
+                    });
+                });
+                setTimeout(() => animateWave(nextQueue), 150);
+            }
+            
+            animateWave(queue);
+        }
+        
+        createGrid();
+    </script>
+</body>
+</html>
