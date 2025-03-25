@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hash Table Visualizer</title>
+    <style>
+        /* Blue theme styles */
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f8ff;
+            color: #333;
+            padding: 0;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            height: 100vh;
+            flex-direction: column;
+            overflow: hidden; /* Prevent scrolling for better layout control */
+        }
+
+        h1 {
+            text-align: center;
+            color: #1e88e5;
+            font-size: 40px;
+            margin: 20px 0;
+            width: 100%;
+        }
+
+        /* Main container for layout */
+        .container {
+            display: flex;
+            justify-content: space-between;
+            width: 80%;
+            height: 100%;
+            gap: 20px;
+            padding: 30px;
+            box-sizing: border-box;
+            flex-wrap: nowrap;
+        }
+
+        /* Left Section (Input and Hash Table) */
+        .left-container {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            width: 40%; /* Take up 50% of the width */
+            min-width: 350px;
+        }
+
+        /* Input fields styling */
+        .input-container input, .input-container select {
+            padding: 12px;
+            font-size: 16px;
+            border-radius: 8px;
+            border: 1px solid #1e88e5;
+            width: 100%;
+            box-sizing: border-box;
+            transition: all 0.3s ease;
+        }
+
+        /* Hover effect for input field */
+        .input-container input:hover, .input-container select:hover {
+            border-color: #1e88e5;
+            box-shadow: 0 0 10px rgba(37, 99, 235, 0.5);
+        }
+
+        .button-container {
+            display: flex;
+            justify-content: center;
+            margin-top: 10px;
+        }
+
+        button {
+            padding: 12px 20px;
+            font-size: 16px;
+            background-color: #1e88e5;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        button:hover {
+            background-color: #1e88e5;
+            transform: scale(1.05);
+        }
+
+        /* Hash table styling */
+        .hash-table {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .table-cell {
+            width: 80px;
+            height: 60px;
+            border: 2px solid #1e88e5;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: #dbeafe;
+            font-size: 18px;
+            font-weight: bold;
+            color: #1e3a8a;
+            transition: all 0.3s ease;
+        }
+
+        .table-cell:hover {
+            background-color: #1e88e5;
+            color: white;
+            transform: scale(1.1);
+        }
+
+        /* Insertion steps section styling */
+        .right-container {
+            width: 35%; /* Take up 50% of the width */
+            min-width: 250px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            justify-content: flex-start;
+        }
+
+        .steps {
+            background-color: #1e88e5;
+            color: white;
+            padding: 8px 15px; /* Reduced padding to make the box smaller */
+            border-radius: 10px;
+            width: 100%;
+            box-sizing: border-box;
+            overflow-y: auto;
+            max-height: 100px; /* Set max height for the smaller box */
+        }
+
+        .steps h3 {
+            margin: 0;
+            font-size: 18px; /* Smaller font size */
+        }
+
+        .steps p {
+            font-size: 14px; /* Smaller font size */
+            margin-bottom: 5px; /* Reduced margin */
+        }
+
+        .step-arrow {
+            font-size: 20px; /* Reduced font size */
+            color: #2563eb;
+            text-align: center;
+            margin-top: 10px;
+        }
+
+        /* Responsiveness */
+        @media (max-width: 768px) {
+            .container {
+                flex-direction: column;
+                align-items: center;
+                gap: 20px;
+            }
+
+            .left-container, .right-container {
+                width: 100%;
+            }
+
+            .steps {
+                max-height: 150px; /* Increase max height for smaller screens */
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Hash Table Visualization</h1>
+    
+    <div class="container">
+        <!-- Left Section (Input and Hash Table) -->
+        <div class="left-container">
+            <div class="input-container">
+                <input type="text" id="key-input" placeholder="Enter keys (comma-separated)" />
+                <select id="hash-method">
+                    <option value="division">Division Method</option>
+                    <option value="multiplication">Multiplication Method</option>
+                    <option value="linear">Linear Probing</option>
+                    <option value="quadratic">Quadratic Probing</option>
+                    <option value="chaining">Chaining</option>
+                </select>
+            </div>
+            <div class="button-container">
+                <button onclick="insertKeys()">Insert Keys</button>
+            </div>
+
+            <!-- Hash Table Display -->
+            <div class="hash-table" id="hash-table">
+                <div class="table-cell"> </div>
+                <div class="table-cell"> </div>
+                <div class="table-cell"> </div>
+                <div class="table-cell"> </div>
+                <div class="table-cell"> </div>
+                <div class="table-cell"> </div>
+                <div class="table-cell"> </div>
+                <div class="table-cell"> </div>
+                <div class="table-cell"> </div>
+                <div class="table-cell"> </div>
+            </div>
+        </div>
+
+        <!-- Right Section (Insertion Steps) -->
+        <div class="right-container" id="steps">
+            <div class="steps">
+                <h3>Insertion Steps:</h3>
+                <!-- Steps will be dynamically added here -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const tableSize = 10;  // Fixed table size
+
+        // Initialize empty hash table with null values
+        let hashTable = new Array(tableSize).fill(null);
+
+        function clearSteps() {
+            document.getElementById("steps").innerHTML = '<div class="steps"><h3>Insertion Steps:</h3></div>';
+        }
+
+        function displayTable() {
+            const tableDiv = document.getElementById("hash-table");
+            tableDiv.innerHTML = '';  // Clear the current table
+            hashTable.forEach(value => {
+                const cell = document.createElement("div");
+                cell.classList.add("table-cell");
+                cell.innerHTML = value ? value : '';
+                tableDiv.appendChild(cell);
+            });
+        }
+
+        function showSteps(message, arrow = "") {
+            const stepContainer = document.getElementById("steps");
+            const stepElement = document.createElement("p");
+            stepElement.innerHTML = message;
+            stepContainer.appendChild(stepElement);
+            if (arrow) {
+                const arrowElement = document.createElement("div");
+                arrowElement.innerHTML = arrow;
+                arrowElement.classList.add("step-arrow");
+                stepContainer.appendChild(arrowElement);
+            }
+        }
+
+        function insertKeys() {
+            const keyInput = document.getElementById("key-input");
+            const keys = keyInput.value.split(',').map(key => key.trim()).filter(Boolean);
+            const method = document.getElementById("hash-method").value;
+
+            if (keys.length === 0) {
+                alert("Please enter at least one key!");
+                return;
+            }
+
+            clearSteps();  // Clear previous steps
+            let allInserted = true;
+
+            keys.forEach(key => {
+                const keyInt = parseInt(key);
+                if (isNaN(keyInt)) {
+                    alert(`"${key}" is not a valid key.`);
+                    return;
+                }
+                let inserted = false;
+
+                switch (method) {
+                    case "division":
+                        inserted = divisionMethod(keyInt);
+                        break;
+                    case "multiplication":
+                        inserted = multiplicationMethod(keyInt);
+                        break;
+                    case "linear":
+                        inserted = linearProbing(keyInt);
+                        break;
+                    case "quadratic":
+                        inserted = quadraticProbing(keyInt);
+                        break;
+                    case "chaining":
+                        inserted = chainingMethod(keyInt);
+                        break;
+                }
+
+                if (!inserted) {
+                    allInserted = false;
+                }
+            });
+
+            if (allInserted) {
+                displayTable();
+            } else {
+                showSteps("Some keys could not be inserted due to collisions or table full.");
+            }
+        }
+
+        function divisionMethod(key) {
+            const index = key % tableSize;
+            if (hashTable[index] === null) {
+                hashTable[index] = key;
+                showSteps(`Key ${key} inserted at index ${index} (Division method)`, "↓");
+                return true;
+            } else {
+                showSteps(`Collision at index ${index}. Key ${key} could not be inserted.`, "→");
+                return false;
+            }
+        }
+
+        function multiplicationMethod(key) {
+            const A = 0.6180339887; // Constant for multiplication method
+            const index = Math.floor(tableSize * ((key * A) % 1));
+            if (hashTable[index] === null) {
+                hashTable[index] = key;
+                showSteps(`Key ${key} inserted at index ${index} (Multiplication method)`, "↓");
+                return true;
+            } else {
+                showSteps(`Collision at index ${index}. Key ${key} could not be inserted.`, "→");
+                return false;
+            }
+        }
+
+        function linearProbing(key) {
+            let index = key % tableSize;
+            let startIndex = index;
+            while (hashTable[index] !== null) {
+                index = (index + 1) % tableSize;
+                if (index === startIndex) break;  // Table is full
+            }
+            if (hashTable[index] === null) {
+                hashTable[index] = key;
+                showSteps(`Key ${key} inserted at index ${index} (Linear probing)`, "↓");
+                return true;
+            } else {
+                showSteps(`No available space for key ${key}.`, "→");
+                return false;
+            }
+        }
+
+        function quadraticProbing(key) {
+            let index = key % tableSize;
+            let i = 1;
+            let startIndex = index;
+            while (hashTable[index] !== null) {
+                index = (startIndex + i * i) % tableSize;
+                i++;
+                if (index === startIndex) break;  // Table is full
+            }
+            if (hashTable[index] === null) {
+                hashTable[index] = key;
+                showSteps(`Key ${key} inserted at index ${index} (Quadratic probing)`, "↓");
+                return true;
+            } else {
+                showSteps(`No available space for key ${key}.`, "→");
+                return false;
+            }
+        }
+
+        function chainingMethod(key) {
+            const index = key % tableSize;
+            if (!hashTable[index]) {
+                hashTable[index] = [];
+            }
+            hashTable[index].push(key);
+            showSteps(`Key ${key} inserted at index ${index} (Chaining method)`, "↓");
+            return true;
+        }
+    </script>
+</body>
+</html>
