@@ -297,8 +297,16 @@
 
             if (allInserted) {
                 displayTable();
+                removeLastArrow();
             } else {
                 showSteps("Some keys could not be inserted due to collisions or table full.");
+            }
+        }
+
+        function removeLastArrow() {
+            const arrows = document.querySelectorAll('.step-arrow');
+            if (arrows.length > 0) {
+                arrows[arrows.length - 1].remove();
             }
         }
 
@@ -309,8 +317,8 @@
                 showSteps(`Key ${key} inserted at index ${index} (Division method)`, "↓");
                 return true;
             } else {
-                showSteps(`Collision at index ${index}. Key ${key} could not be inserted.`, "→");
-                return false;
+                showSteps(`Collision at index ${index}. Trying next available space.`, "→");
+                return resolveCollision(key, index);
             }
         }
 
@@ -322,8 +330,8 @@
                 showSteps(`Key ${key} inserted at index ${index} (Multiplication method)`, "↓");
                 return true;
             } else {
-                showSteps(`Collision at index ${index}. Key ${key} could not be inserted.`, "→");
-                return false;
+                showSteps(`Collision at index ${index}. Trying next available space.`, "→");
+                return resolveCollision(key, index);
             }
         }
 
@@ -371,6 +379,22 @@
             hashTable[index].push(key);
             showSteps(`Key ${key} inserted at index ${index} (Chaining method)`, "↓");
             return true;
+        }
+
+        function resolveCollision(key, index) {
+            let originalIndex = index;
+            while (hashTable[index] !== null) {
+                index = (index + 1) % tableSize;
+                if (hashTable[index] === null) {
+                    hashTable[index] = key;
+                    showSteps(`Collision resolved at index ${index}. Key ${key} inserted.`, "↓");
+                    return true;
+                }
+                if (index === originalIndex) {
+                    break;
+                }
+            }
+            return false;
         }
     </script>
 </body>
