@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Heap Sort Visualizer</title>
+    <style>
+        body {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            height: 100vh;
+            background-color: #f4f4f4;
+        }
+        .header {
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            padding: 40px 0;
+            margin-bottom: 40px;
+        }
+        .bar-container {
+            display: flex;
+            align-items: flex-end;
+            height: 75vh;
+            width: 95vw;
+            justify-content: center;
+        }
+        .bar {
+            width: 100px;
+            margin: 10px;
+            background-color: steelblue;
+            text-align: center;
+            color: white;
+            font-weight: bold;
+            display: flex;
+            align-items: flex-end;
+            justify-content: center;
+            font-size: 22px;
+            border-radius: 5px;
+        }
+        button {
+            padding: 25px 50px;
+            font-size: 36px;
+            font-weight: bold;
+            background: linear-gradient(135deg, #ff7eb3, #ff758c);
+            color: white;
+            border: none;
+            border-radius: 15px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2);
+        }
+        button:hover {
+            background: linear-gradient(135deg, #ff5f6d, #ff3c54);
+            transform: scale(1.1);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <button onclick="startHeapSort()"> Start Heap Sort </button>
+    </div>
+    <div class="bar-container" id="barContainer"></div>
+    
+    <script>
+        let array = [];
+        const numBars = 10;
+        
+        function generateArray() {
+            array = [];
+            document.getElementById("barContainer").innerHTML = "";
+            for (let i = 0; i < numBars; i++) {
+                let value = Math.floor(Math.random() * 400) + 50;
+                array.push(value);
+                let bar = document.createElement("div");
+                bar.classList.add("bar");
+                bar.style.height = value + "px";
+                bar.innerText = value;
+                document.getElementById("barContainer").appendChild(bar);
+            }
+        }
+        
+        async function heapify(n, i) {
+            let bars = document.getElementsByClassName("bar");
+            let largest = i;
+            let left = 2 * i + 1;
+            let right = 2 * i + 2;
+            
+            if (left < n && array[left] > array[largest]) {
+                largest = left;
+            }
+            
+            if (right < n && array[right] > array[largest]) {
+                largest = right;
+            }
+            
+            if (largest !== i) {
+                [array[i], array[largest]] = [array[largest], array[i]];
+                bars[i].style.height = array[i] + "px";
+                bars[i].innerText = array[i];
+                bars[largest].style.height = array[largest] + "px";
+                bars[largest].innerText = array[largest];
+                await new Promise(resolve => setTimeout(resolve, 300));
+                await heapify(n, largest);
+            }
+        }
+        
+        async function heapSort() {
+            let bars = document.getElementsByClassName("bar");
+            let n = array.length;
+            
+            for (let i = Math.floor(n / 2) - 1; i >= 0; i--) {
+                await heapify(n, i);
+            }
+            
+            for (let i = n - 1; i > 0; i--) {
+                [array[0], array[i]] = [array[i], array[0]];
+                bars[0].style.height = array[0] + "px";
+                bars[0].innerText = array[0];
+                bars[i].style.height = array[i] + "px";
+                bars[i].innerText = array[i];
+                bars[i].style.backgroundColor = "green";
+                await new Promise(resolve => setTimeout(resolve, 500));
+                await heapify(i, 0);
+            }
+            bars[0].style.backgroundColor = "green";
+        }
+        
+        async function startHeapSort() {
+            await heapSort();
+        }
+        
+        generateArray();
+    </script>
+</body>
+</html>
