@@ -92,7 +92,7 @@
                 bars[minIndex].style.backgroundColor = "red";
                 for (let j = i + 1; j < arr.length; j++) {
                     bars[j].style.backgroundColor = "yellow";
-                    await new Promise(resolve => setTimeout(resolve, 200));
+                    await new Promise(resolve => setTimeout(resolve, 500));
                     if (arr[j] < arr[minIndex]) {
                         bars[minIndex].style.backgroundColor = "steelblue";
                         minIndex = j;
