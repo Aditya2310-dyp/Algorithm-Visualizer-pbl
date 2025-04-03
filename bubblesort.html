@@ -90,7 +90,7 @@
                 for (let j = 0; j < array.length - i - 1; j++) {
                     bars[j].style.backgroundColor = "yellow";
                     bars[j + 1].style.backgroundColor = "yellow";
-                    await new Promise(resolve => setTimeout(resolve, 200));
+                    await new Promise(resolve => setTimeout(resolve, 500));
                     if (array[j] > array[j + 1]) {
                         [array[j], array[j + 1]] = [array[j + 1], array[j]];
                         bars[j].style.height = array[j] + "px";
