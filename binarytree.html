@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Binary Tree Visualizer</title>
+    <link href="icon2.jpg" rel="website icon">
+    <style>
+        body {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            height: 100vh;
+            background-color: #f4f4f4;
+            font-family: Arial, sans-serif;
+        }
+        h1 {
+            margin-top: 20px;
+        }
+        .buttons {
+            margin: 20px;
+        }
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            font-weight: bold;
+            background: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        button:hover {
+            background: #45a049;
+        }
+        .tree-container {
+            position: relative;
+            width: 100%;
+            height: 500px;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            overflow: hidden;
+        }
+        .node {
+            position: absolute;
+            width: 50px;
+            height: 50px;
+            background-color: blue; /* Permanent blue highlight */
+            color: white;
+            text-align: center;
+            line-height: 50px;
+            border: 2px solid black;
+            border-radius: 50%;
+            font-weight: bold;
+            transition: background-color 0.5s ease;
+        }
+        .line {
+            stroke: black;
+            stroke-width: 2;
+        }
+        .highlight-yellow {
+            background-color: yellow !important; /* Temporary yellow highlight */
+        }
+        .pop-up {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: white;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            z-index: 1000;
+        }
+        .pop-up button {
+            margin-top: 10px;
+        }
+        .overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 999;
+        }
+    </style>
+</head>
+<body>
+    <h1>Binary Tree Visualizer</h1>
+    <div class="buttons">
+        <button onclick="generateNewTree()">Generate New Tree</button>
+        <button onclick="showTraversalPopup()">Choose Traversal</button>
+    </div>
+    <svg class="tree-container" id="treeContainer"></svg>
+    <div id="traversalResult"></div>
+
+    <div class="overlay" id="overlay"></div>
+    <div class="pop-up" id="popUp">
+        <h2>Choose Traversal Type</h2>
+        <select id="traversalSelect">
+            <option value="preorder">Pre-order</option>
+            <option value="inorder">In-order</option>
+            <option value="postorder">Post-order</option>
+        </select>
+        <button onclick="runTraversal()">Run Traversal</button>
+        <button onclick="closePopup()">Close</button>
+    </div>
+
+    <script>
+        class TreeNode {
+            constructor(value) {
+                this.value = value;
+                this.left = null;
+                this.right = null;
+            }
+        }
+
+        function generateRandomTree(depth = 3) {
+            if (depth === 0) return null;
+            let node = new TreeNode(Math.floor(Math.random() * 100));
+            node.left = Math.random() > 0.3 ? generateRandomTree(depth - 1) : null;
+            node.right = Math.random() > 0.3 ? generateRandomTree(depth - 1) : null;
+            return node;
+        }
+
+        function createSVGLine(x1, y1, x2, y2) {
+            let line = document.createElementNS("http://www.w3.org/2000/svg", "line");
+            line.setAttribute("x1", x1);
+            line.setAttribute("y1", y1);
+            line.setAttribute("x2", x2);
+            line.setAttribute("y2", y2);
+            line.classList.add("line");
+            return line;
+        }
+
+        function displayTree(root, container, x, y, dx, depth = 0) {
+            if (!root) return;
+
+            let nodeElement = document.createElementNS("http://www.w3.org/2000/svg", "foreignObject");
+            nodeElement.setAttribute("x", x - 25);
+            nodeElement.setAttribute("y", y - 25);
+            nodeElement.setAttribute("width", 50);
+            nodeElement.setAttribute("height", 50);
+
+            let div = document.createElement("div");
+            div.classList.add("node");
+            div.innerText = root.value;
+
+            nodeElement.appendChild(div);
+            container.appendChild(nodeElement);
+
+            if (root.left) {
+                let leftX = x - dx;
+                let leftY = y + 100;
+                container.appendChild(createSVGLine(x, y, leftX, leftY));
+                displayTree(root.left, container, leftX, leftY, dx / 1.8, depth + 1);
+            }
+            if (root.right) {
+                let rightX = x + dx;
+                let rightY = y + 100;
+                container.appendChild(createSVGLine(x, y, rightX, rightY));
+                displayTree(root.right, container, rightX, rightY, dx / 1.8, depth + 1);
+            }
+        }
+
+        function highlightNode(nodeElement) {
+            nodeElement.classList.add("highlight-yellow"); // Apply yellow highlight during traversal
+        }
+
+        function generateNewTree() {
+            let container = document.getElementById("treeContainer");
+            container.innerHTML = "";
+            treeRoot = generateRandomTree(4);
+            displayTree(treeRoot, container, window.innerWidth / 2, 50, 200);
+        }
+
+        function preOrderTraversal(root, result = []) {
+            if (root) {
+                result.push(root.value);
+                preOrderTraversal(root.left, result);
+                preOrderTraversal(root.right, result);
+            }
+            return result;
+        }
+
+        function inOrderTraversal(root, result = []) {
+            if (root) {
+                inOrderTraversal(root.left, result);
+                result.push(root.value);
+                inOrderTraversal(root.right, result);
+            }
+            return result;
+        }
+
+        function postOrderTraversal(root, result = []) {
+            if (root) {
+                postOrderTraversal(root.left, result);
+                postOrderTraversal(root.right, result);
+                result.push(root.value);
+            }
+            return result;
+        }
+
+        function showTraversalPopup() {
+            document.getElementById("popUp").style.display = "block";
+            document.getElementById("overlay").style.display = "block";
+        }
+
+        function closePopup() {
+            document.getElementById("popUp").style.display = "none";
+            document.getElementById("overlay").style.display = "none";
+        }
+
+        function runTraversal() {
+            let traversalType = document.getElementById("traversalSelect").value;
+            let result = [];
+
+            switch (traversalType) {
+                case "preorder":
+                    result = preOrderTraversal(treeRoot);
+                    break;
+                case "inorder":
+                    result = inOrderTraversal(treeRoot);
+                    break;
+                case "postorder":
+                    result = postOrderTraversal(treeRoot);
+                    break;
+            }
+
+            document.getElementById("traversalResult").innerText = `Traversal Result (${traversalType}): ${result.join(", ")}`;
+
+            // Highlight nodes during traversal
+            let container = document.getElementById("treeContainer");
+            container.innerHTML = "";
+            displayTree(treeRoot, container, window.innerWidth / 2, 50, 200); // Re-render the tree
+            animateTraversal(treeRoot, container, traversalType);
+
+            closePopup();
+        }
+
+        // Function to animate traversal
+        function animateTraversal(root, container, traversalType) {
+            let traversalOrder = [];
+            let delay = 1000; // Delay between each node highlight
+
+            switch (traversalType) {
+                case "preorder":
+                    traversalOrder = preOrderTraversal(root);
+                    break;
+                case "inorder":
+                    traversalOrder = inOrderTraversal(root);
+                    break;
+                case "postorder":
+                    traversalOrder = postOrderTraversal(root);
+                    break;
+            }
+
+            let nodes = document.querySelectorAll(".node");
+
+            function highlightNextNode(index) {
+                if (index >= traversalOrder.length) {
+                    return;
+                }
+
+                let nodeValue = traversalOrder[index];
+                let node = Array.from(nodes).find(node => node.innerText == nodeValue);
+                
+                if (node) {
+                    node.classList.add("highlight-yellow");
+
+                    setTimeout(() => {
+                        node.classList.remove("highlight-yellow");
+                        highlightNextNode(index + 1); // Continue to next node
+                    }, delay);
+                }
+            }
+
+            highlightNextNode(0); // Start the traversal animation
+        }
+
+        let treeRoot = generateRandomTree(4);
+        displayTree(treeRoot, document.getElementById("treeContainer"), window.innerWidth / 2, 50, 200);
+    </script>
+</body>
+</html>
