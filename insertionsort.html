@@ -1,119 +1,184 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Insertion Sort Visualizer</title>
-    <style>
-        body {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: flex-start;
-            height: 100vh;
-            background-color: #f4f4f4;
-        }
-        .header {
-            width: 100%;
-            display: flex;
-            justify-content: center;
-            padding: 40px 0;
-            margin-bottom: 40px;
-        }
-        .bar-container {
-            display: flex;
-            align-items: flex-end;
-            height: 75vh;
-            width: 95vw;
-            justify-content: center;
-        }
-        .bar {
-            width: 100px;
-            margin: 10px;
-            background-color: steelblue;
-            text-align: center;
-            color: white;
-            font-weight: bold;
-            display: flex;
-            align-items: flex-end;
-            justify-content: center;
-            font-size: 22px;
-            border-radius: 5px;
-        }
-        button {
-            padding: 25px 50px;
-            font-size: 36px;
-            font-weight: bold;
-            background: linear-gradient(135deg, #ff7eb3, #ff758c);
-            color: white;
-            border: none;
-            border-radius: 15px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2);
-        }
-        button:hover {
-            background: linear-gradient(135deg, #ff5f6d, #ff3c54);
-            transform: scale(1.1);
-            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
-        }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Insertion Sort Visualizer</title>
+  <style>
+    body {
+      display: flex;
+      flex-direction: row;
+      align-items: flex-start;
+      justify-content: center;
+      height: 100vh;
+      background-color: #f4f4f4;
+      font-family: Arial, sans-serif;
+    }
+
+    .main-content {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .header {
+      width: 100%;
+      display: flex;
+      justify-content: center;
+      padding: 20px 0;
+    }
+
+    .bar-container {
+      display: flex;
+      align-items: flex-end;
+      height: 75vh;
+      width: 90vw;
+      justify-content: center;
+      overflow-x: auto;
+    }
+
+    .bar {
+      width: 60px;
+      margin: 10px;
+      background-color: steelblue;
+      text-align: center;
+      color: white;
+      font-weight: bold;
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+      font-size: 18px;
+      border-radius: 5px;
+    }
+
+    button {
+      padding: 15px 30px;
+      font-size: 24px;
+      font-weight: bold;
+      background: linear-gradient(135deg, #ff7eb3, #ff758c);
+      color: white;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2);
+      margin-right: 20px;
+    }
+
+    button:hover {
+      background: linear-gradient(135deg, #5fcaff, #ff3cf8);
+      transform: scale(1.05);
+    }
+
+    .slider-container {
+      margin-top: 10px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .slider-container input {
+      width: 200px;
+    }
+
+    .legend {
+      padding: 20px;
+      margin-top: 30px;
+      margin-right: 40px;
+    }
+
+    .legend ul {
+      list-style-type: disc;
+      font-size: 18px;
+      padding-left: 20px;
+    }
+
+    .legend li {
+      margin-bottom: 10px;
+    }
+  </style>
 </head>
 <body>
+  <div class="main-content">
     <div class="header">
-        <button onclick="startInsertionSort()"> Start Insertion Sort </button>
+      <button onclick="startInsertionSort()">Start Insertion Sort</button>
+      <div class="slider-container">
+        <label for="speedRange"><strong>Speed:</strong></label>
+        <input type="range" id="speedRange" min="1" max="100" value="50" />
+      </div>
     </div>
     <div class="bar-container" id="barContainer"></div>
-    
-    <script>
-        let array = [];
-        const numBars = 10;
-        
-        function generateArray() {
-            array = [];
-            document.getElementById("barContainer").innerHTML = "";
-            for (let i = 0; i < numBars; i++) {
-                let value = Math.floor(Math.random() * 400) + 50;
-                array.push(value);
-                let bar = document.createElement("div");
-                bar.classList.add("bar");
-                bar.style.height = value + "px";
-                bar.innerText = value;
-                document.getElementById("barContainer").appendChild(bar);
-            }
+  </div>
+
+  <div class="legend">
+    <ul>
+      <li><span style="color: red; font-weight: bold;">Red</span>: Current key</li>
+      <li><span style="color: orange; font-weight: bold;">Orange</span>: Comparing</li>
+      <li><span style="color: green; font-weight: bold;">Green</span>: Sorted</li>
+    </ul>
+  </div>
+
+  <script>
+    let array = [];
+    const numBars = 10;
+    const maxDelay = 1000;
+
+    function generateArray() {
+      array = [];
+      document.getElementById("barContainer").innerHTML = "";
+      for (let i = 0; i < numBars; i++) {
+        let value = Math.floor(Math.random() * 400) + 50;
+        array.push(value);
+        let bar = document.createElement("div");
+        bar.classList.add("bar");
+        bar.style.height = value + "px";
+        bar.innerText = value;
+        document.getElementById("barContainer").appendChild(bar);
+      }
+    }
+
+    function getSpeed() {
+      const sliderValue = parseInt(document.getElementById("speedRange").value);
+      return maxDelay - sliderValue * 10;
+    }
+
+    async function insertionSort(arr) {
+      let bars = document.getElementsByClassName("bar");
+      for (let i = 1; i < arr.length; i++) {
+        let key = arr[i];
+        let j = i - 1;
+
+        bars[i].style.backgroundColor = "red";
+        await new Promise(resolve => setTimeout(resolve, getSpeed()));
+
+        while (j >= 0 && arr[j] > key) {
+          bars[j].style.backgroundColor = "orange";
+          arr[j + 1] = arr[j];
+          bars[j + 1].style.height = arr[j + 1] + "px";
+          bars[j + 1].innerText = arr[j + 1];
+          j--;
+          await new Promise(resolve => setTimeout(resolve, getSpeed()));
+          for (let k = 0; k <= i; k++) {
+            bars[k].style.backgroundColor = "steelblue";
+          }
         }
-        
-        async function insertionSort() {
-            let bars = document.getElementsByClassName("bar");
-            for (let i = 1; i < array.length; i++) {
-                let key = array[i];
-                let j = i - 1;
-                bars[i].style.backgroundColor = "yellow";
-                await new Promise(resolve => setTimeout(resolve, 300));
-                while (j >= 0 && array[j] > key) {
-                    array[j + 1] = array[j];
-                    bars[j + 1].style.height = array[j] + "px";
-                    bars[j + 1].innerText = array[j];
-                    bars[j].style.backgroundColor = "red";
-                    await new Promise(resolve => setTimeout(resolve, 500));
-                    bars[j].style.backgroundColor = "steelblue";
-                    j--;
-                }
-                array[j + 1] = key;
-                bars[j + 1].style.height = key + "px";
-                bars[j + 1].innerText = key;
-                bars[i].style.backgroundColor = "steelblue";
-            }
-            for (let k = 0; k < bars.length; k++) {
-                bars[k].style.backgroundColor = "green";
-            }
+
+        arr[j + 1] = key;
+        bars[j + 1].style.height = key + "px";
+        bars[j + 1].innerText = key;
+
+        for (let k = 0; k <= i; k++) {
+          bars[k].style.backgroundColor = "green";
         }
-        
-        async function startInsertionSort() {
-            await insertionSort();
-        }
-        
-        generateArray();
-    </script>
+      }
+    }
+
+    async function startInsertionSort() {
+      await insertionSort(array);
+    }
+
+    generateArray();
+  </script>
 </body>
 </html>
